@@ -1,5 +1,5 @@
-#ifndef EXECUTOR_HPP
-#define EXECUTOR_HPP
+#ifndef EXECUTOR_H
+#define EXECUTOR_H
 
 #include <string>
 #include <vector>
@@ -15,4 +15,4 @@ public:
     static ExecutionResult execute(const std::vector<std::string>& tokens);
 };
 
-#endif // EXECUTOR_HPP
+#endif // EXECUTOR_H

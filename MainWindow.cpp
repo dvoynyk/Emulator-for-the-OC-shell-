@@ -8,8 +8,8 @@
 #include <QApplication>
 #include <QScrollBar>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow(const AppConfig& config, QWidget *parent)
+    : QMainWindow(parent), appConfig(config)
 {
     setupUi();
 }
@@ -30,7 +30,7 @@ void MainWindow::setupUi() {
     historyArea->setReadOnly(true);
     historyArea->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 
-    historyArea->append("Добро пожаловать в Shell Emulator [Этап 1]!");
+    historyArea->append("Добро пожаловать в Shell Emulator [Этап 2]!");
     historyArea->append("Доступные команды: ls, cd, exit\n");
 
     inputField = new QLineEdit(this);

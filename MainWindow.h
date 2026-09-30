@@ -5,12 +5,13 @@
 #include <QTextEdit>
 #include <QLineEdit>
 #include <string>
+#include "ConfigParser.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(const AppConfig& config, QWidget *parent = nullptr);
     ~MainWindow() override = default;
 
 private:
@@ -23,6 +24,7 @@ private:
     QTextEdit *historyArea;
     QLineEdit *inputField;
     std::string userPrompt;
+    AppConfig appConfig;
 };
 
 #endif // MAINWINDOW_HPP
