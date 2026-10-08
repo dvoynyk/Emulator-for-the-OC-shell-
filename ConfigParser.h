@@ -2,6 +2,9 @@
 #define CONFIGPARSER_H
 
 #include <string>
+#include <memory>
+
+class VFSManager;
 
 struct AppConfig
 {
@@ -9,6 +12,7 @@ struct AppConfig
     std::string pathStartScript;
     bool hasVFS = false;
     bool hasScript = false;
+    std::shared_ptr<VFSManager> vfsManager;
 };
 
 class ConfigParser

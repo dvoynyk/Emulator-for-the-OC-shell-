@@ -5,7 +5,10 @@
 #include <QTextEdit>
 #include <QLineEdit>
 #include <string>
+#include <memory>
 #include "ConfigParser.h"
+
+class VFSManager;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -25,6 +28,7 @@ private:
     QLineEdit *inputField;
     std::string userPrompt;
     AppConfig appConfig;
+    std::shared_ptr<VFSManager> vfsManager;
 };
 
 #endif // MAINWINDOW_HPP

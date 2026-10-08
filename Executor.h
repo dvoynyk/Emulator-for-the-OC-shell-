@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+
+class VFSManager;
 
 struct ExecutionResult {
     bool shouldExit;
@@ -12,7 +15,7 @@ struct ExecutionResult {
 
 class Executor {
 public:
-    static ExecutionResult execute(const std::vector<std::string>& tokens);
+    static ExecutionResult execute(const std::vector<std::string>& tokens, std::shared_ptr<VFSManager> vfs = nullptr);
 };
 
 #endif // EXECUTOR_H

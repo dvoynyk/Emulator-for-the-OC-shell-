@@ -1,6 +1,8 @@
 #include "ConfigParser.h"
+#include "VFSManager.h"
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 ConfigParser::ConfigParser()
 {
@@ -47,6 +49,18 @@ AppConfig ConfigParser::parse(int argc, char* argv[])
                       << "  --vfs <путь>, -v <путь>        Путь к файлу VFS\n"
                       << "  --script <путь>, -s <путь>     Путь к стартовому скрипту\n"
                       << "  --help, -h                      Показать эту справку\n";
+        }
+    }
+
+    // Загружаем VFS если указан
+    if (config.hasVFS)
+    {
+        config.vfsManager = std::make_shared<VFSManager>();
+        if (!config.vfsManager->loadFromXML(config.pathVFS))
+        {
+            std::cerr << "Ошибка загрузки VFS: " << config.vfsManager->getError() << std::endl;
+            config.vfsManager = nullptr;
+            config.hasVFS = false;
         }
     }
 

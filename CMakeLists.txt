@@ -20,6 +20,8 @@ set(PROJECT_SOURCES
         Executor.cpp
         ConfigParser.cpp
         ScriptExecutor.cpp
+        VFSManager.cpp
+        Base64Decoder.cpp
 
         MainWindow.h
         SystemInfo.h
@@ -27,6 +29,8 @@ set(PROJECT_SOURCES
         Executor.h
         ConfigParser.h
         ScriptExecutor.h
+        VFSManager.h
+        Base64Decoder.h
 )
 
 if(QT_VERSION_MAJOR GREATER_EQUAL 6)

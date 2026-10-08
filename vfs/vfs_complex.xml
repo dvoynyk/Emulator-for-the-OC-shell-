@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<filesystem>
+  <file name="README.md">
+    IyBDb21wbGV4IFRGU1MKVGhpcyBpcyBhIGNvbXBsZXggdmlydHVhbCBmaWxlIHN5c3RlbS4=
+  </file>
+  <file name="config.txt">
+    Q29uZmlndXJhdGlvbiBmaWxlIHdpdGggc2V0dGluZ3Mu
+  </file>
+  <file name="data.txt">
+    RGF0YSBmaWxlIGluIHJvb3QgZGlyZWN0b3J5Lg==
+  </file>
+  <directory name="home">
+  </directory>
+  <directory name="usr">
+  </directory>
+  <directory name="var">
+  </directory>
+</filesystem>

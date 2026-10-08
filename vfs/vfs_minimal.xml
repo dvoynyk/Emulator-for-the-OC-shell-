@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<filesystem>
+  <file name="readme.txt">
+    SGVsbG8gV29ybGQhIFRoaXMgaXMgYSBtaW5pbWFsIFZGUyBmaWxlc3lzdGVtLg==
+  </file>
+  <directory name="folder1">
+  </directory>
+</filesystem>

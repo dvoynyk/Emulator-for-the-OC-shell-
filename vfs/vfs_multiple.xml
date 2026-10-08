@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<filesystem>
+  <file name="file1.txt">
+    VGhpcyBpcyBmaWxlIDEgaW4gdGhlIHJvb3QgZGlyZWN0b3J5Lg==
+  </file>
+  <file name="file2.txt">
+    VGhpcyBpcyBmaWxlIDIgaW4gdGhlIHJvb3QgZGlyZWN0b3J5Lg==
+  </file>
+  <directory name="documents">
+  </directory>
+  <directory name="pictures">
+  </directory>
+</filesystem>

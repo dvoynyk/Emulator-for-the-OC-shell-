@@ -2,6 +2,7 @@
 #include "SystemInfo.h"
 #include "Parser.h"
 #include "Executor.h"
+#include "VFSManager.h"
 
 #include <QVBoxLayout>
 #include <QWidget>
@@ -9,7 +10,7 @@
 #include <QScrollBar>
 
 MainWindow::MainWindow(const AppConfig& config, QWidget *parent)
-    : QMainWindow(parent), appConfig(config)
+    : QMainWindow(parent), appConfig(config), vfsManager(config.vfsManager)
 {
     setupUi();
 }
@@ -30,8 +31,16 @@ void MainWindow::setupUi() {
     historyArea->setReadOnly(true);
     historyArea->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 
-    historyArea->append("Добро пожаловать в Shell Emulator [Этап 2]!");
-    historyArea->append("Доступные команды: ls, cd, exit\n");
+    historyArea->append("Добро пожаловать в Shell Emulator [Этап 3]!");
+    historyArea->append("Доступные команды: ls, cd, pwd, cat, exit");
+
+    if (vfsManager) {
+        historyArea->append("\nVFS загружена успешно!");
+        historyArea->append("Текущий путь: " + QString::fromStdString(vfsManager->getCurrentPath()));
+    } else {
+        historyArea->append("\nVFS не загружена (работа в режиме заглушек)");
+    }
+    historyArea->append("");
 
     inputField = new QLineEdit(this);
     inputField->setPlaceholderText("Введите команду...");
@@ -62,7 +71,7 @@ void MainWindow::onCommandEntered() {
         return;
     }
 
-    ExecutionResult execResult = Executor::execute(parseResult.tokens);
+    ExecutionResult execResult = Executor::execute(parseResult.tokens, vfsManager);
 
     if (!execResult.output.empty()) {
         if (execResult.isError) {
