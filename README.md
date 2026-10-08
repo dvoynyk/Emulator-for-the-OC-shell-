@@ -1,131 +1,214 @@
 # Emulator-for-the-OC-shell
 Разработка эмулятора для языка оболочки OC
 
-# Эмулятор командной оболочки ОС (GUI) — Этап 2: Конфигурация
+# Эмулятор командной оболочки ОС (GUI) — Этап 3: Виртуальная файловая система (VFS)
 
 ![Language](https://img.shields.io/badge/Language-C%2B%2B-blue.svg)
 ![Interface](https://img.shields.io/badge/UI-GUI-green.svg)
-![Stage](https://img.shields.io/badge/Stage-2%20(Configuration)-yellow.svg)
+![Stage](https://img.shields.io/badge/Stage-3%20(VFS)-red.svg)
 
-Графический эмулятор командной строки UNIX-подобной операционной системы с поддержкой параметров командной строки и автоматического выполнения скриптов. Данный проект воссоздает пользовательский опыт работы с терминалом через специализированный графический интерфейс.
+Графический эмулятор командной строки UNIX-подобной операционной системы с полноценной виртуальной файловой системой (VFS). Все операции выполняются в памяти без распаковки архивов.
 
 ---
 
-## 📋 Обзор Этапа 2
+## 📋 Обзор Этапа 3
 
-На текущем этапе реализована конфигурация эмулятора через параметры командной строки:
+На текущем этапе реализована виртуальная файловая система:
 
-- **Парсинг параметров командной строки** с поддержкой флагов `--vfs`, `--script` и их сокращённых вариантов.
-- **Модуль ConfigParser** для обработки и валидации аргументов при запуске.
-- **Модуль ScriptExecutor** для автоматического выполнения скриптов построчно.
-- **Поддержка комментариев** в скриптах (синтаксис `#`).
-- **Обработка ошибок** при выполнении скриптов с продолжением работы после сбоев.
-- **Имитация диалога** - вывод как команд, так и результатов их выполнения.
-- **Задержка между командами** для визуального эффекта пошагового выполнения.
+- **VFS на основе XML** с кодированием двоичных данных в base64
+- **Загрузка VFS в память** при запуске приложения
+- **Полная реализация команд:**
+  - `ls` - список файлов и папок с размерами
+  - `cd` - навигация по папкам
+  - `pwd` - отображение текущего пути
+  - `cat` - вывод содержимого текстовых файлов
+- **Обработка ошибок:**
+  - Файл VFS не найден
+  - Неверный формат XML
+  - Попытка доступа к несуществующим путям
+  - Попытка чтения папки как файла
+- **Работа в памяти** - без распаковки или модификации VFS
+- **Навигация между уровнями** - поддержка `.` и `..`
 
 ---
 
 ## 🖼 Демонстрация работы
 
-### 1. Запуск без параметров
-$ shell-emulator.exe
+### 1. Запуск с минимальной VFS
+```text
+$ shell-emulator.exe --vfs "vfs/vfs_minimal.xml"
 
 === Конфигурация эмулятора ===
-VFS: не указан
+VFS: vfs/vfs_minimal.xml
 Стартовый скрипт: не указан
-Добро пожаловать в Shell Emulator [Этап 2]!
-Доступные команды: ls, cd, exit
+VFS загружена успешно!
+Текущий путь: /
+```
 
-text
-
-
-### 2. Запуск со стартовым скриптом
-$ shell-emulator.exe --script "scripts/test_basic.txt"
-
-=== Конфигурация эмулятора ===
-VFS: не указан
-Стартовый скрипт: scripts/test_basic.txt
-[СКРИПТ] Начало выполнения
-
+### 2. Просмотр содержимого
+```text
 user@host:~$ ls
-[Заглушка команды ls]
-Переданные аргументы (0):
+Содержимое директории (/):
+[FILE] readme.txt (51 bytes)
+[DIR] folder1
 
-user@host:~$ ls -l -a
-[Заглушка команды ls]
-Переданные аргументы (2): [-l] [-a]
+user@host:~$ cat readme.txt
+Содержимое файла 'readme.txt':
+Hello World! This is a minimal VFS filesystem.
 
-user@host:~$ cd /home/user
-[Заглушка команды cd]
-Target directory: /home/user
+user@host:~$ pwd
+Текущий путь: /
+```
 
-[СКРИПТ] Завершено
+### 3. Навигация по папкам
+```text
+user@host:~$ cd folder1
+Переход в директорию: folder1
 
-text
+user@host:~$ pwd
+Текущий путь: /folder1
 
+user@host:~$ cd ..
+Переход в директорию: ..
 
-### 3. Обработка ошибок в скрипте
-$ shell-emulator.exe --script "scripts/test_errors.txt"
+user@host:~$ pwd
+Текущий путь: /
+```
 
-[СКРИПТ] Начало выполнения
+### 4. Обработка ошибок
+```text
+user@host:~$ cd nonexistent
+Ошибка: директория не найдена: nonexistent
 
-user@host:~$ unknown_command
-Ошибка: неизвестная команда "unknown_command"
+user@host:~$ cat nonexistent.txt
+Ошибка: файл не найден: nonexistent.txt
 
-user@host:~$ ls "unclosed
-Ошибка синтаксиса: незакрытая кавычка (")
-
-user@host:~$ ls
-[Заглушка команды ls]
-Переданные аргументы (0):
-
-[СКРИПТ] Завершено
-
-text
-
+user@host:~$ ls nonexistent
+Ошибка: директория не найдена
+```
 
 ---
 
 ## 💻 Параметры командной строки
 
-| Параметр | Короткий вариант | Описание | Пример |
+| Параметр | Короткий | Описание | Пример |
 | :--- | :--- | :--- | :--- |
-| `--vfs <путь>` | `-v <путь>` | Путь к файлу виртуальной файловой системы | `--vfs "C:/vfs.zip"` |
-| `--script <путь>` | `-s <путь>` | Путь к стартовому скрипту для выполнения | `--script "scripts/test.txt"` |
-| `--help` | `-h` | Показать справку по параметрам | `--help` |
+| `--vfs <путь>` | `-v <путь>` | Путь к XML файлу VFS | `--vfs "vfs/filesystem.xml"` |
+| `--script <путь>` | `-s <путь>` | Путь к стартовому скрипту | `--script "scripts/test.txt"` |
+| `--help` | `-h` | Показать справку | `--help` |
 
 ---
 
-## 📝 Формат стартовых скриптов
+## 📝 Формат VFS (XML)
 
-Скрипты являются текстовыми файлами с одной командой на строку:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<filesystem>
+  <file name="readme.txt">
+    SGVsbG8gV29ybGQh
+  </file>
+  <directory name="folder1">
+  </directory>
+</filesystem>
+```
 
-```bash
-# Это комментарий - игнорируется при выполнении
-ls
-
-# Команды с аргументами
-ls -l -a
-
-# Пути в кавычках
-cd "My Documents"
-
-# Смешанные кавычки
-ls "file 1" 'file 2' file3
-
-# Пустые строки также игнорируются
-
-# Еще одна команда
-cd /home
 Особенности:
 
-Комментарии начинаются с #
-Пустые строки пропускаются
-Поддерживаются одинарные и двойные кавычки
-При ошибке выполнение продолжается со следующей строки
-📂 Структура проекта
-text
+- Двоичные данные кодируются в base64
+- Папки представлены тегами `<directory>`
+- Файлы представлены тегами `<file>`
+- Содержимое файла находится между открывающим и закрывающим тегами
 
+## 📋 Поддерживаемые команды на Этапе 3
+
+| Команда | Описание | Пример | Результат |
+| :--- | :--- | :--- | :--- |
+| `ls` | Список файлов текущей папки | `ls` | Показывает все файлы и папки |
+| `ls <путь>` | Список файлов в директории | `ls /documents` | Показывает файлы в `/documents` |
+| `cd <путь>` | Переход в директорию | `cd /home` | Переходит в `/home` |
+| `cd ..` | Переход на уровень выше | `cd ..` | Переходит в родительскую папку |
+| `pwd` | Текущий путь | `pwd` | Показывает `/current/path` |
+| `cat <файл>` | Содержимое файла | `cat readme.txt` | Выводит содержимое файла |
+| `exit` | Выход | `exit` | Закрывает приложение |
+
+## 🛠 Сборка и запуск
+
+### Требования
+
+- Компилятор с поддержкой C++17
+- CMake 3.16+
+- Qt6 Widgets
+- MinGW 11.2.0
+
+### Сборка
+
+```bash
+mkdir build && cd build
+cmake ..
+cmake --build .
+```
+
+### Запуск
+
+Без VFS (режим заглушек):
+
+```bash
+shell-emulator.exe
+```
+
+С VFS:
+
+```bash
+shell-emulator.exe --vfs "../vfs/vfs_minimal.xml"
+```
+
+С VFS и стартовым скриптом:
+
+```bash
+shell-emulator.exe --vfs "../vfs/vfs_minimal.xml" --script "../scripts/comprehensive_test.txt"
+```
+
+## 🧪 Тестирование
+
+### Включённые тестовые VFS файлы
+
+- `vfs_minimal.xml` - минимальная структура
+  - 1 файл и 1 папка в корне
+  - Для быстрой проверки базовой функциональности
+- `vfs_multiple.xml` - средняя сложность
+  - Несколько файлов и папок
+  - 2 уровня вложенности
+- `vfs_complex.xml` - сложная структура
+  - 20+ элементов
+  - 3+ уровня вложенности
+  - Тестирование глубокой навигации
+
+### Запуск тестов
+
+Используйте `bat`/`sh` файлы в папке `launch_scripts/`:
+
+```bash
+# Windows
+../launch_scripts/test_vfs_minimal.bat
+../launch_scripts/test_vfs_multiple.bat
+../launch_scripts/test_vfs_complex.bat
+
+# Linux/Mac
+../launch_scripts/test_vfs_minimal.sh
+../launch_scripts/test_vfs_multiple.sh
+../launch_scripts/test_vfs_complex.sh
+```
+
+### Комплексный тест
+
+Запуск со всеми компонентами:
+
+```bash
+shell-emulator.exe --vfs "vfs/vfs_minimal.xml" --script "scripts/comprehensive_test.txt"
+```
+## 📂 Структура проекта
+
+```text
 shell-emulator/
 ├── Header Files/
 │   ├── MainWindow.h
@@ -133,7 +216,9 @@ shell-emulator/
 │   ├── Parser.h
 │   ├── Executor.h
 │   ├── ConfigParser.h
-│   └── ScriptExecutor.h
+│   ├── ScriptExecutor.h
+│   ├── VFSManager.h
+│   └── Base64Decoder.h
 │
 ├── Source Files/
 │   ├── main.cpp
@@ -142,101 +227,30 @@ shell-emulator/
 │   ├── Parser.cpp
 │   ├── Executor.cpp
 │   ├── ConfigParser.cpp
-│   └── ScriptExecutor.cpp
+│   ├── ScriptExecutor.cpp
+│   ├── VFSManager.cpp
+│   └── Base64Decoder.cpp
+│
+├── vfs/
+│   ├── vfs_minimal.xml
+│   ├── vfs_multiple.xml
+│   └── vfs_complex.xml
 │
 ├── scripts/
 │   ├── test_basic.txt
 │   ├── test_errors.txt
 │   ├── test_all.txt
-│   └── demo.txt
+│   ├── demo.txt
+│   └── comprehensive_test.txt
 │
 ├── launch_scripts/
-│   ├── run_basic.bat
-│   ├── run_with_script.bat
-│   ├── run_all.bat
-│   ├── run_basic.sh
-│   └── run_with_script.sh
+│   ├── test_vfs_minimal.bat
+│   ├── test_vfs_multiple.bat
+│   ├── test_vfs_complex.bat
+│   ├── test_vfs_minimal.sh
+│   ├── test_vfs_multiple.sh
+│   └── test_vfs_complex.sh
 │
 ├── CMakeLists.txt
 ├── README.md
 └── .gitignore
-🛠 Сборка и запуск
-Требования
-Компилятор с поддержкой C++17 или новее
-Система автоматизации сборки CMake (версия 3.14+)
-Фреймворк Qt6 (Widgets компонент)
-MinGW 11.2.0 (для Windows) или GCC 8+ (для Linux/Mac)
-Инструкция по сборке
-Клонируйте репозиторий:
-Bash
-
-git clone https://github.com/your-username/shell-emulator.git
-cd shell-emulator
-Создайте директорию сборки и выполните компиляцию:
-Bash
-
-mkdir build && cd build
-cmake ..
-cmake --build .
-Запустите эмулятор
-Без параметров (интерактивный режим):
-
-Bash
-
-shell-emulator.exe
-Со стартовым скриптом:
-
-Bash
-
-shell-emulator.exe --script "../scripts/test_basic.txt"
-Со всеми параметрами:
-
-Bash
-
-shell-emulator.exe --vfs "../vfs/filesystem.zip" --script "../scripts/test_all.txt"
-Или используйте готовые скрипты запуска:
-Bash
-
-# Windows
-../launch_scripts/run_with_script.bat
-
-# Linux/Mac
-../launch_scripts/run_with_script.sh
-✨ Примеры использования
-Пример 1: Запуск со стартовым скриптом
-Bash
-
-$ shell-emulator.exe --script "scripts/demo.txt"
-Содержимое demo.txt:
-
-Bash
-
-# Демонстрационный скрипт
-ls
-ls -l
-cd /home
-cd /var
-ls -a
-Результат: Все команды выполнятся автоматически с выводом результатов.
-
-Пример 2: Тестирование обработки ошибок
-Bash
-
-$ shell-emulator.exe --script "scripts/test_errors.txt"
-Эмулятор покажет как корректно обрабатываются:
-
-Неизвестные команды
-Незакрытые кавычки
-Продолжение работы после ошибок
-🔄 Версионирование
-Этап 1 (REPL): Базовый интерфейс, парсер, команды-заглушки
-Этап 2 (Конфигурация): Параметры командной строки, скрипты, конфигурация
-📋 Поддерживаемые команды
-Команда	Тип	Описание	Пример
-ls	Заглушка	Выводит имя и аргументы	ls -l "My Documents"
-cd	Заглушка	Выводит имя и путь	cd "/home/user"
-exit	Системная	Завершает эмулятор	exit
-🚀 Планируемые этапы
-Этап 3: Виртуальная файловая система
-Этап 4: Полная реализация команд ls, cd
-Этап 5: Дополнительные команды (cat, rm, mkdir и т.д.)
